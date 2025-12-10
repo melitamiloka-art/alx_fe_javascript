@@ -7,26 +7,25 @@ let quotes = [
 
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteButton = document.getElementById("newQuote");
-
-
+const addQuoteButton = document.getElementById("addQuoteBtn");
 const textInput = document.getElementById("newQuoteText");
 const categoryInput = document.getElementById("newQuoteCategory");
-const addQuoteButton = document.getElementById("addQuoteBtn");
 
 
 function showRandomQuote() {
+  if (quotes.length === 0) {
+    quoteDisplay.innerHTML = "<p>No quotes available.</p>";
+    return;
+  }
+
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const randomQuote = quotes[randomIndex];
 
-  
   quoteDisplay.innerHTML = `
     <p><strong>"${randomQuote.text}"</strong></p>
     <p>— Category: <em>${randomQuote.category}</em></p>
   `;
 }
-
-
-newQuoteButton.addEventListener("click", showRandomQuote);
 
 
 function addQuote() {
@@ -35,25 +34,24 @@ function addQuote() {
 
   
   if (newText === "" || newCategory === "") {
-    alert("Please enter BOTH the quote text and category.");
+    alert("Please enter both a quote and a category.");
     return;
   }
 
   
-  quotes.push({
-    text: newText,
-    category: newCategory
-  });
+  const newQuote = { text: newText, category: newCategory };
+  quotes.push(newQuote);
 
   
   quoteDisplay.innerHTML = `
     <p style="color: green;">New quote added successfully!</p>
+    <p><strong>"${newQuote.text}"</strong> — Category: <em>${newQuote.category}</em></p>
   `;
 
-  
   textInput.value = "";
   categoryInput.value = "";
 }
 
 
+newQuoteButton.addEventListener("click", showRandomQuote);
 addQuoteButton.addEventListener("click", addQuote);
