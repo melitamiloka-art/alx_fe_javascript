@@ -8,39 +8,23 @@
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
-      background: #f9f9f9;
-    }
-    h1, h2 {
-      color: #333;
     }
     #quoteDisplay {
       margin: 20px 0;
-      padding: 20px;
-      background: #fff;
-      border-left: 5px solid #007bff;
+      padding: 15px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
       width: 60%;
-      font-size: 1.2rem;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
     input {
       margin: 5px 0;
-      padding: 10px;
-      width: 280px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 8px;
+      width: 250px;
     }
     button {
-      padding: 10px 16px;
+      padding: 8px 12px;
       margin-top: 5px;
       cursor: pointer;
-      background: #007bff;
-      border: none;
-      color: white;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    button:hover {
-      background: #0056b3;
     }
   </style>
 </head>
@@ -48,7 +32,7 @@
 
   <h1>Dynamic Quote Generator</h1>
 
- 
+  
   <div id="quoteDisplay">Click "Show New Quote" to begin.</div>
 
   
@@ -65,9 +49,6 @@
 
   <script>
     
-    console.log("Checking requisite files exist...");
-
-    
     let quotes = [
       { text: "Success is not final; failure is not fatal.", category: "Motivation" },
       { text: "In the middle of difficulty lies opportunity.", category: "Inspiration" },
@@ -75,26 +56,12 @@
     ];
 
     
-    if (Array.isArray(quotes) && quotes.every(q => q.text && q.category)) {
-      console.log("Quotes array exists and has proper structure.");
-    } else {
-      console.error("Quotes array is missing or has wrong structure!");
-    }
-
-    
     const quoteDisplay = document.getElementById("quoteDisplay");
     const newQuoteButton = document.getElementById("newQuote");
     const addQuoteButton = document.getElementById("addQuoteBtn");
-    const textInput = document.getElementById("newQuoteText");
-    const categoryInput = document.getElementById("newQuoteCategory");
 
     
-    function displayRandomQuote() {
-      if (quotes.length === 0) {
-        quoteDisplay.innerHTML = "<p>No quotes available.</p>";
-        return;
-      }
-
+    function showRandomQuote() {
       const randomIndex = Math.floor(Math.random() * quotes.length);
       const randomQuote = quotes[randomIndex];
 
@@ -105,38 +72,36 @@
       `;
     }
 
-    console.log("displayRandomQuote function exists.");
+    newQuoteButton.addEventListener("click", showRandomQuote);
 
     
     function addQuote() {
+      const textInput = document.getElementById("newQuoteText");
+      const categoryInput = document.getElementById("newQuoteCategory");
+
       const newText = textInput.value.trim();
       const newCategory = categoryInput.value.trim();
 
-      if (!newText || !newCategory) {
-        alert("Please enter both a quote and a category.");
+      if (newText === "" || newCategory === "") {
+        alert("Please enter both the quote and category.");
         return;
       }
 
       
       quotes.push({ text: newText, category: newCategory });
-      console.log("New quote added to array:", { text: newText, category: newCategory });
 
+      
       quoteDisplay.innerHTML = `
         <p style="color: green;">New quote added successfully!</p>
-        <p><strong>"${newText}"</strong> — Category: <em>${newCategory}</em></p>
       `;
 
+      
       textInput.value = "";
       categoryInput.value = "";
     }
 
-    console.log("addQuote function exists.");
-
-    
-    newQuoteButton.addEventListener("click", displayRandomQuote);
     addQuoteButton.addEventListener("click", addQuote);
-
-    console.log("Event listener on 'Show New Quote' button is set.");
   </script>
+
 </body>
 </html>
