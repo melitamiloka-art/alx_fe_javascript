@@ -34,3 +34,37 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quote Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Quote Generator</h1>
+
+        <div class="input-section">
+            <input type="text" id="quoteInput" placeholder="Enter a new quote">
+            <button id="addQuoteBtn">Add Quote</button>
+        </div>
+
+        <div class="storage-section">
+            <button id="exportBtn">Export Quotes</button>
+            <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)">
+        </div>
+
+        <h2>Quotes:</h2>
+        <ul id="quotesList"></ul>
+
+        <div class="last-viewed">
+            <strong>Last viewed quote:</strong> <span id="lastViewedQuote">None</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
