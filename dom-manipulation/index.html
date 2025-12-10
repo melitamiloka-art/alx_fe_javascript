@@ -4,12 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Quote Generator</title>
-
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
-      background: #f0f0f0;
+      background: #f9f9f9;
     }
 
     h1 {
@@ -54,10 +53,8 @@
 
   <h1>Dynamic Quote Generator</h1>
 
-  
   <div id="quoteDisplay">Click "Show New Quote" to begin.</div>
 
-  
   <button id="newQuote">Show New Quote</button>
 
   <h2>Add a New Quote</h2>
@@ -70,57 +67,7 @@
     <button id="addQuoteBtn">Add Quote</button>
   </div>
 
-  <script>
-    
-    let quotes = [
-      { text: "Success is not final; failure is not fatal.", category: "Motivation" },
-      { text: "In the middle of difficulty lies opportunity.", category: "Inspiration" },
-      { text: "The secret of getting ahead is getting started.", category: "Productivity" }
-    ];
-
-    
-    const quoteDisplay = document.getElementById("quoteDisplay");
-    const newQuoteButton = document.getElementById("newQuote");
-    const addQuoteButton = document.getElementById("addQuoteBtn");
-
-    
-    function showRandomQuote() {
-      const randomIndex = Math.floor(Math.random() * quotes.length);
-      const randomQuote = quotes[randomIndex];
-
-      quoteDisplay.innerHTML = `
-        <p><strong>"${randomQuote.text}"</strong></p>
-        <p>— Category: <em>${randomQuote.category}</em></p>
-      `;
-    }
-
-    newQuoteButton.addEventListener("click", showRandomQuote);
-
-    
-    function addQuote() {
-      const textInput = document.getElementById("newQuoteText");
-      const categoryInput = document.getElementById("newQuoteCategory");
-
-      const newText = textInput.value.trim();
-      const newCategory = categoryInput.value.trim();
-
-      if (newText === "" || newCategory === "") {
-        alert("Please enter both the quote and category.");
-        return;
-      }
-
-      quotes.push({ text: newText, category: newCategory });
-
-      quoteDisplay.innerHTML = `
-        <p style="color: green;">New quote added successfully!</p>
-      `;
-
-      textInput.value = "";
-      categoryInput.value = "";
-    }
-
-    addQuoteButton.addEventListener("click", addQuote);
-  </script>
+  <script src="script.js"></script>
 
 </body>
 </html>
