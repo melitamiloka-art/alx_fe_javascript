@@ -87,35 +87,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dynamic Quote Generator with Sync</title>
+<title>Quote Sync App</title>
+
 <style>
   body { font-family: Arial, sans-serif; padding: 20px; }
   .quote { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
-  .notification { background: #fffae6; border: 1px solid #f5c518; padding: 10px; margin-bottom: 10px; }
-  button { margin-top: 20px; padding: 10px 20px; }
+  .notification { 
+      background: #fffae6; 
+      border: 1px solid #f5c518; 
+      padding: 10px; 
+      margin-bottom: 10px; 
+  }
+  button { margin-top: 10px; padding: 10px 20px; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<h1>Dynamic Quote Generator</h1>
+<h1>Dynamic Quote Generator — Sync Enabled</h1>
+
+
 <div id="quotes-container"></div>
 
-<input type="text" id="new-quote" placeholder="Add a new quote..." style="width: 300px; padding: 5px;">
+
+<input type="text" id="new-quote" placeholder="Add a new quote…" style="width:300px;padding:6px;">
 <button id="add-quote-button">Add Quote</button>
+
+
 <button id="sync-button">Sync Now</button>
 
 <script>
 
-const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 
 
 async function fetchQuotesFromServer() {
     try {
         const response = await fetch(SERVER_URL);
         const data = await response.json();
-        return data.slice(0, 10).map(item => ({ id: item.id, text: item.title }));
+
+        
+        return data.slice(0, 10).map(item => ({
+            id: item.id,
+            text: item.title
+        }));
     } catch (error) {
-        console.error('Error fetching quotes:', error);
+        console.error("Error fetching from server:", error);
         return [];
     }
 }
@@ -123,97 +139,112 @@ async function fetchQuotesFromServer() {
 async function postQuoteToServer(quoteText) {
     try {
         const response = await fetch(SERVER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title: quoteText })
         });
+
         const data = await response.json();
-        console.log('Posted new quote:', data);
+        console.log("Posted to server:", data);
         return data;
     } catch (error) {
-        console.error('Error posting quote:', error);
+        console.error("Error posting quote:", error);
     }
 }
 
-
 function displayQuotes(quotes) {
-    const container = document.getElementById('quotes-container');
-    container.innerHTML = '';
+    const container = document.getElementById("quotes-container");
+    container.innerHTML = "";
+
     quotes.forEach(q => {
-        const div = document.createElement('div');
-        div.className = 'quote';
+        const div = document.createElement("div");
+        div.className = "quote";
         div.innerText = `#${q.id}: ${q.text}`;
         container.appendChild(div);
     });
 }
 
-
 function notifyUser(message) {
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.innerText = message;
-    document.body.insertBefore(notification, document.getElementById('quotes-container'));
-    setTimeout(() => notification.remove(), 5000);
+    const note = document.createElement("div");
+    note.className = "notification";
+    note.innerText = message;
+
+    document.body.prepend(note);
+    setTimeout(() => note.remove(), 5000);
 }
 
+
 function syncQuotes(serverQuotes) {
-    let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+    let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
 
     serverQuotes.forEach(serverQuote => {
-        const existing = localQuotes.find(q => q.id === serverQuote.id);
-        if (!existing) {
+        const local = localQuotes.find(q => q.id === serverQuote.id);
+
+        if (!local) {
             
             localQuotes.push(serverQuote);
-            notifyUser(`New quote added from server: #${serverQuote.id}`);
-        } else if (existing.text !== serverQuote.text) {
+            notifyUser(`New quote added from server (#${serverQuote.id})`);
+        }
+        else if (local.text !== serverQuote.text) {
             
-            existing.text = serverQuote.text;
-            notifyUser(`Quote #${existing.id} was updated from server.`);
+            local.text = serverQuote.text;
+            notifyUser(`Conflict detected — quote #${local.id} updated from server`);
         }
     });
 
-    localStorage.setItem('quotes', JSON.stringify(localQuotes));
+    localStorage.setItem("quotes", JSON.stringify(localQuotes));
     displayQuotes(localQuotes);
 }
 
-document.getElementById('add-quote-button').addEventListener('click', async () => {
-    const input = document.getElementById('new-quote');
+
+document.getElementById("add-quote-button").addEventListener("click", async () => {
+    const input = document.getElementById("new-quote");
     const text = input.value.trim();
     if (!text) return;
 
-    const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
-    const newId = localQuotes.length ? Math.max(...localQuotes.map(q => q.id)) + 1 : 1;
+    let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+    let newId = localQuotes.length ? Math.max(...localQuotes.map(q => q.id)) + 1 : 1;
+
     const newQuote = { id: newId, text };
     localQuotes.push(newQuote);
-    localStorage.setItem('quotes', JSON.stringify(localQuotes));
+    localStorage.setItem("quotes", JSON.stringify(localQuotes));
+
     displayQuotes(localQuotes);
+    notifyUser(`New quote added locally (#${newId})`);
 
-    notifyUser(`New quote added locally: #${newQuote.id}`);
-    input.value = '';
+    input.value = "";
 
+    
     await postQuoteToServer(text);
 });
 
-document.getElementById('sync-button').addEventListener('click', async () => {
+
+document.getElementById("sync-button").addEventListener("click", async () => {
     const serverQuotes = await fetchQuotesFromServer();
     syncQuotes(serverQuotes);
 });
 
 
+setInterval(async () => {
+    const serverQuotes = await fetchQuotesFromServer();
+    syncQuotes(serverQuotes);
+}, 30000);
+
+
+
 (async function init() {
-    let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+    let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+
     if (localQuotes.length === 0) {
         const serverQuotes = await fetchQuotesFromServer();
-        localStorage.setItem('quotes', JSON.stringify(serverQuotes));
+        localStorage.setItem("quotes", JSON.stringify(serverQuotes));
         localQuotes = serverQuotes;
+        notifyUser("Initial quotes loaded from server");
     }
+
     displayQuotes(localQuotes);
 
-    
-    setInterval(async () => {
-        const serverQuotes = await fetchQuotesFromServer();
-        syncQuotes(serverQuotes);
-    }, 30000);
 })();
 </script>
 
