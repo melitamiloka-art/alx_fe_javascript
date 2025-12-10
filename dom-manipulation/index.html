@@ -81,3 +81,107 @@
     <script src="script.js"></script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Quote Generator with Sync</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .quote { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+  .notification { background: #fffae6; border: 1px solid #f5c518; padding: 10px; margin-bottom: 10px; }
+  button { margin-top: 20px; padding: 10px 20px; }
+</style>
+</head>
+<body>
+
+<h1>Dynamic Quote Generator</h1>
+<div id="quotes-container"></div>
+<button id="sync-button">Sync Now</button>
+
+<script>
+
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
+
+
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch(SERVER_URL);
+        const data = await response.json();
+        return data.slice(0, 10).map(item => ({ id: item.id, text: item.title }));
+    } catch (error) {
+        console.error('Error fetching quotes:', error);
+        return [];
+    }
+}
+
+
+function displayQuotes(quotes) {
+    const container = document.getElementById('quotes-container');
+    container.innerHTML = '';
+    quotes.forEach(q => {
+        const div = document.createElement('div');
+        div.className = 'quote';
+        div.innerText = `#${q.id}: ${q.text}`;
+        container.appendChild(div);
+    });
+}
+
+
+function notifyUserConflict(id) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerText = `Quote #${id} was updated from server.`;
+    document.body.insertBefore(notification, document.getElementById('quotes-container'));
+    setTimeout(() => notification.remove(), 5000);
+}
+
+
+function syncLocalWithServer(serverQuotes) {
+    let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+    serverQuotes.forEach(serverQuote => {
+        const existing = localQuotes.find(q => q.id === serverQuote.id);
+        if (!existing) {
+            
+            localQuotes.push(serverQuote);
+        } else if (existing.text !== serverQuote.text) {
+           
+            existing.text = serverQuote.text;
+            notifyUserConflict(existing.id);
+        }
+    });
+
+    localStorage.setItem('quotes', JSON.stringify(localQuotes));
+    displayQuotes(localQuotes);
+}
+
+
+document.getElementById('sync-button').addEventListener('click', async () => {
+    const serverQuotes = await fetchQuotesFromServer();
+    syncLocalWithServer(serverQuotes);
+});
+
+
+(async function init() {
+    
+    let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+    if (localQuotes.length === 0) {
+        const serverQuotes = await fetchQuotesFromServer();
+        localStorage.setItem('quotes', JSON.stringify(serverQuotes));
+        localQuotes = serverQuotes;
+    }
+    displayQuotes(localQuotes);
+
+    
+    setInterval(async () => {
+        const serverQuotes = await fetchQuotesFromServer();
+        syncLocalWithServer(serverQuotes);
+    }, 30000);
+})();
+</script>
+
+</body>
+</html>
