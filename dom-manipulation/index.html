@@ -99,6 +99,9 @@
 
 <h1>Dynamic Quote Generator</h1>
 <div id="quotes-container"></div>
+
+<input type="text" id="new-quote" placeholder="Add a new quote..." style="width: 300px; padding: 5px;">
+<button id="add-quote-button">Add Quote</button>
 <button id="sync-button">Sync Now</button>
 
 <script>
@@ -117,6 +120,21 @@ async function fetchQuotesFromServer() {
     }
 }
 
+async function postQuoteToServer(quoteText) {
+    try {
+        const response = await fetch(SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: quoteText })
+        });
+        const data = await response.json();
+        console.log('Posted new quote:', data);
+        return data;
+    } catch (error) {
+        console.error('Error posting quote:', error);
+    }
+}
+
 
 function displayQuotes(quotes) {
     const container = document.getElementById('quotes-container');
@@ -130,16 +148,15 @@ function displayQuotes(quotes) {
 }
 
 
-function notifyUserConflict(id) {
+function notifyUser(message) {
     const notification = document.createElement('div');
     notification.className = 'notification';
-    notification.innerText = `Quote #${id} was updated from server.`;
+    notification.innerText = message;
     document.body.insertBefore(notification, document.getElementById('quotes-container'));
     setTimeout(() => notification.remove(), 5000);
 }
 
-
-function syncLocalWithServer(serverQuotes) {
+function syncQuotes(serverQuotes) {
     let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
 
     serverQuotes.forEach(serverQuote => {
@@ -147,10 +164,11 @@ function syncLocalWithServer(serverQuotes) {
         if (!existing) {
             
             localQuotes.push(serverQuote);
+            notifyUser(`New quote added from server: #${serverQuote.id}`);
         } else if (existing.text !== serverQuote.text) {
-           
+            
             existing.text = serverQuote.text;
-            notifyUserConflict(existing.id);
+            notifyUser(`Quote #${existing.id} was updated from server.`);
         }
     });
 
@@ -158,15 +176,31 @@ function syncLocalWithServer(serverQuotes) {
     displayQuotes(localQuotes);
 }
 
+document.getElementById('add-quote-button').addEventListener('click', async () => {
+    const input = document.getElementById('new-quote');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+    const newId = localQuotes.length ? Math.max(...localQuotes.map(q => q.id)) + 1 : 1;
+    const newQuote = { id: newId, text };
+    localQuotes.push(newQuote);
+    localStorage.setItem('quotes', JSON.stringify(localQuotes));
+    displayQuotes(localQuotes);
+
+    notifyUser(`New quote added locally: #${newQuote.id}`);
+    input.value = '';
+
+    await postQuoteToServer(text);
+});
 
 document.getElementById('sync-button').addEventListener('click', async () => {
     const serverQuotes = await fetchQuotesFromServer();
-    syncLocalWithServer(serverQuotes);
+    syncQuotes(serverQuotes);
 });
 
 
 (async function init() {
-    
     let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
     if (localQuotes.length === 0) {
         const serverQuotes = await fetchQuotesFromServer();
@@ -178,7 +212,7 @@ document.getElementById('sync-button').addEventListener('click', async () => {
     
     setInterval(async () => {
         const serverQuotes = await fetchQuotesFromServer();
-        syncLocalWithServer(serverQuotes);
+        syncQuotes(serverQuotes);
     }, 30000);
 })();
 </script>
