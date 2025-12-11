@@ -326,95 +326,116 @@ window.onload = function() {
 
 window.addQuote = addQuote;
 
-const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 
-let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
-
-
-
-function saveLocalQuotes() {
-  localStorage.setItem("quotes", JSON.stringify(localQuotes));
+function getLocalQuotes() {
+    return JSON.parse(localStorage.getItem("quotes")) || [];
 }
 
-function showNotification(message) {
-  const div = document.getElementById("notification");
-
-  if (!div) return;
-
-  div.textContent = message;
-  div.classList.remove("hidden");
-
-  setTimeout(() => {
-    div.classList.add("hidden");
-  }, 3000);
+function saveLocalQuotes(quotes) {
+    localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
-async function fetchFromServer() {
-  try {
-    const res = await fetch(SERVER_URL);
-    const data = await res.json();
+function notifyUser(message) {
+    const box = document.getElementById("notification");
+
+    if (!box) {
+        console.warn("No #notification element in HTML");
+        return;
+    }
+
+    box.innerText = message;
+    box.style.display = "block";
+
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 4000);
+}
+
+
+function resolveConflict(serverQuote, localQuote) {
+    const userChoice = confirm(
+        "A conflict was detected!\n\n" +
+        "OK = Use server version\n" +
+        "Cancel = Keep your local version"
+    );
+
+    return userChoice ? serverQuote : localQuote;
+}
+
+
+function updateLocalQuotes(serverQuotes) {
+    const localQuotes = getLocalQuotes();
+
+    const merged = serverQuotes.map(serverQuote => {
+        const localMatch = localQuotes.find(q => q.id === serverQuote.id);
+
+        if (!localMatch) return serverQuote;
 
     
-    return data.slice(0, 10).map(item => ({
-      id: item.id,
-      text: item.title || item.body,
-      updatedAt: Date.now(),
-    }));
-  } catch (err) {
-    console.error("Error fetching server data:", err);
-    showNotification("⚠ Server unreachable — using local data");
-    return [];
-  }
+        const isDifferent =
+            JSON.stringify(localMatch) !== JSON.stringify(serverQuote);
+
+        if (isDifferent) {
+            return resolveConflict(serverQuote, localMatch);
+        }
+
+        return serverQuote;
+    });
+
+    saveLocalQuotes(merged);
+    notifyUser("Quotes synced with server.");
 }
 
-function resolveConflicts(serverQuotes) {
-  let merged = [...localQuotes];
-
-  serverQuotes.forEach(serverQuote => {
-    const existing = merged.find(q => q.id === serverQuote.id);
-
-    if (!existing) {
-      
-      merged.push(serverQuote);
-    } else {
-      
-      merged = merged.map(q =>
-        q.id === serverQuote.id ? serverQuote : q
-      );
-      showNotification("🔄 Conflict detected — server version applied");
+async function fetchServerQuotes() {
+    try {
+        const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+        return await res.json();
+    } catch (err) {
+        console.error("Server fetch failed:", err);
+        notifyUser("Failed to reach server.");
+        return [];
     }
-  });
-
-  localQuotes = merged;
-  saveLocalQuotes();
 }
 
-async function syncQuotes() {
-  const serverQuotes = await fetchFromServer();
-
-  if (serverQuotes.length > 0) {
-    resolveConflicts(serverQuotes);
-    showNotification("🔄 Quotes synced with server");
-  }
+async function syncWithServer() {
+    const serverQuotes = await fetchServerQuotes();
+    updateLocalQuotes(serverQuotes);
 }
 
-
-setInterval(() => {
-  syncQuotes();     
-}, 15000);           
+setInterval(syncWithServer, 30000);
 
 
-document.getElementById("sync-btn")?.addEventListener("click", syncQuotes);
+async function addNewQuoteToServer(newQuote) {
+    try {
+        const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newQuote)
+        });
 
-
-function showRandomQuote() {
-  if (localQuotes.length === 0) return;
-
-  const q = localQuotes[Math.floor(Math.random() * localQuotes.length)];
-  document.getElementById("quote").textContent = q.text;
+        return await res.json(); 
+    } catch (err) {
+        console.error("Error posting quote:", err);
+        notifyUser("Failed to send quote to server.");
+        return null;
+    }
 }
 
-document.getElementById("new-quote-btn")?.addEventListener("click", showRandomQuote);
+async function addQuote(newQuoteText) {
+    const newQuote = {
+        userId: 1,
+        title: "User Quote",
+        body: newQuoteText
+    };
 
+    const serverCopy = await addNewQuoteToServer(newQuote);
+    if (!serverCopy) return;
 
-showRandomQuote();
+    const localQuotes = getLocalQuotes();
+    localQuotes.push(serverCopy);
+
+    saveLocalQuotes(localQuotes);
+    notifyUser("Quote added and synced with server!");
+}
+
+syncWithServer();
