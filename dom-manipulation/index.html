@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic Quote Generator</title>
+
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     #quoteDisplay { margin: 20px 0; font-size: 1.2em; }
     .quote-category { font-style: italic; color: gray; }
-    input { margin: 5px 0; padding: 5px; }
+    input { margin: 5px 0; padding: 5px; width: 250px; }
     button { padding: 5px 10px; margin-top: 5px; }
   </style>
 </head>
@@ -24,63 +25,11 @@
     <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
     <button id="addQuoteBtn">Add Quote</button>
   </div>
-  
-   <div>
-    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-    <button onclick="addQuote()">Add Quote</button>
-  </div>
 
   <script src="script.js"></script>
 </body>
 </html>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Quote Generator</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Dynamic Quote Generator</h1>
-
-        <div class="input-section">
-            <input type="text" id="quoteInput" placeholder="Enter a new quote">
-            <button id="addQuoteBtn">Add Quote</button>
-        </div>
-
-        <div class="storage-section">
-            <button id="exportBtn">Export Quotes</button>
-            <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)">
-        </div>
-
-        <h2>Quotes:</h2>
-        <ul id="quotesList"></ul>
-
-        <div class="last-viewed">
-            <strong>Last viewed quote:</strong> <span id="lastViewedQuote">None</span>
-        </div>
-    </div>
-
-<div id="quoteDisplay"></div>
-
-<label for="categoryFilter">Filter by Category:</label>
-<select id="categoryFilter" onchange="filterQuotes()">
-    <option value="all">All Categories</option>
-    
-</select>
-
-<input type="text" id="newQuoteText" placeholder="Quote text">
-<input type="text" id="newQuoteCategory" placeholder="Category">
-<button onclick="addQuote(document.getElementById('newQuoteText').value, document.getElementById('newQuoteCategory').value)">Add Quote</button>
-
-
-    <script src="script.js"></script>
-</body>
-</html>
 
 <!DOCTYPE html>
 <html lang="en">

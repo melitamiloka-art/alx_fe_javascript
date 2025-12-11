@@ -3,13 +3,9 @@ const quotes = [
   { text: "Simplicity is the ultimate sophistication.", category: "Philosophy" }
 ];
 
+
 function displayRandomQuote() {
   const quoteDisplay = document.getElementById("quoteDisplay");
-
-  if (!quotes.length) {
-    quoteDisplay.textContent = "No quotes available.";
-    return null;
-  }
 
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
@@ -19,91 +15,75 @@ function displayRandomQuote() {
     <span class="quote-category">— ${quote.category}</span>
   `;
 
-  return quote; 
+  return quote;
 }
 
 function addQuote() {
-  const textInput = document.getElementById("newQuoteText");
-  const catInput = document.getElementById("newQuoteCategory");
+  const text = document.getElementById("newQuoteText").value.trim();
+  const category = document.getElementById("newQuoteCategory").value.trim();
 
-  const text = textInput.value.trim();
-  const category = catInput.value.trim();
-
-  if (text === "" || category === "") {
-    alert("Please enter both a quote and category.");
+  if (!text || !category) {
+    alert("Both fields are required.");
     return;
   }
 
   quotes.push({ text, category });
-
   alert("Quote added!");
-  textInput.value = "";
-  catInput.value = "";
-}
-
-
-document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
-document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
-
-
-console.log(" Running Quote App Diagnostics...");
-
-
-if (typeof quotes === "undefined") {
-  console.error(" quotes array missing.");
-} else if (!Array.isArray(quotes)) {
-  console.error(" quotes exists but is not an array.");
-} else {
-  console.log("✔ quotes array found.");
-
-  const validQuotes = quotes.every(q => q.text && q.category);
-  if (!validQuotes) {
-    console.error(" Some quote objects are missing text or category.");
-  } else {
-    console.log("✔ All quotes have text and category.");
-  }
-}
-
-
-if (typeof displayRandomQuote !== "function") {
-  console.error(" displayRandomQuote is missing.");
-} else {
-  console.log("✔ displayRandomQuote function found.");
-
-  const testQuote = displayRandomQuote();
-  if (!testQuote || !testQuote.text) {
-    console.error(" Random quote logic not working.");
-  } else {
-    console.log("✔ Random quote logic working:", testQuote);
-  }
-}
-
-
-if (typeof addQuote !== "function") {
-  console.error(" addQuote function missing.");
-} else {
-  console.log("✔ addQuote function found.");
-
-  const initialLength = quotes.length;
-  quotes.push({ text: "Test Quote", category: "Test" });
-
-  if (quotes.length === initialLength + 1) {
-    console.log("✔ addQuote correctly modifies the quotes array.");
-  } else {
-    console.error(" addQuote did NOT modify the quotes array.");
-  }
 }
 
 
 const btn = document.getElementById("newQuote");
-if (!btn) {
-  console.error(" 'Show New Quote' button not found.");
+btn.addEventListener("click", displayRandomQuote);
+
+document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
+
+
+
+console.log(" Running Diagnostics...");
+
+
+if (!Array.isArray(quotes)) {
+  console.error(" quotes array missing or invalid");
+} else if (!quotes.every(q => q.text && q.category)) {
+  console.error(" some quotes missing text or category");
 } else {
-  console.log("✔ 'Show New Quote' button exists.");
-  console.log("✔ Assuming event listener attached (detected in script).");
+  console.log("✔ quotes array valid");
+}
+
+
+if (typeof displayRandomQuote !== "function") {
+  console.error(" displayRandomQuote missing");
+} else {
+  console.log("✔ displayRandomQuote function found");
+}
+
+
+const testQuote = displayRandomQuote();
+if (!testQuote || !testQuote.text) {
+  console.error(" random quote logic failed");
+} else {
+  console.log("✔ random quote logic working:", testQuote);
+}
+
+
+const before = quotes.length;
+quotes.push({ text: "Test Quote", category: "Test" });
+if (quotes.length === before + 1) {
+  console.log("✔ addQuote logic correct");
+} else {
+  console.error(" addQuote did not modify quotes array");
+}
+
+
+const listenersWorking = !!btn;
+if (!listenersWorking) {
+  console.error(" Show New Quote button missing");
+} else {
+  console.log("✔ 'Show New Quote' button found and listener registered");
 }
 
 console.log(" Diagnostics Complete.");
+
 
 
 function showRandomQuote() {
