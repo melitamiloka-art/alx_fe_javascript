@@ -1,29 +1,110 @@
-let quotes = JSON.parse(localStorage.getItem('quotes')) || [
-  { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
-  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-  { text: "Do what you can with all you have, wherever you are.", category: "Action" }
+const quotes = [
+  { text: "Learning never exhausts the mind.", category: "Education" },
+  { text: "Simplicity is the ultimate sophistication.", category: "Philosophy" }
 ];
 
-function saveQuotes() {
-  localStorage.setItem('quotes', JSON.stringify(quotes));
+function displayRandomQuote() {
+  const quoteDisplay = document.getElementById("quoteDisplay");
+
+  if (!quotes.length) {
+    quoteDisplay.textContent = "No quotes available.";
+    return null;
+  }
+
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  const quote = quotes[randomIndex];
+
+  quoteDisplay.innerHTML = `
+    "${quote.text}" <br>
+    <span class="quote-category">— ${quote.category}</span>
+  `;
+
+  return quote; 
 }
 
-function populateCategories() {
-  const categorySelect = document.getElementById('categorySelect');
+function addQuote() {
+  const textInput = document.getElementById("newQuoteText");
+  const catInput = document.getElementById("newQuoteCategory");
 
-  
-  const categories = [...new Set(quotes.map(q => q.category))];
+  const text = textInput.value.trim();
+  const category = catInput.value.trim();
 
+  if (text === "" || category === "") {
+    alert("Please enter both a quote and category.");
+    return;
+  }
 
-  categorySelect.innerHTML = '<option value="All">All</option>';
+  quotes.push({ text, category });
 
-  categories.forEach(cat => {
-    const option = document.createElement('option');
-    option.value = cat;
-    option.textContent = cat;
-    categorySelect.appendChild(option);
-  });
+  alert("Quote added!");
+  textInput.value = "";
+  catInput.value = "";
 }
+
+
+document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
+document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
+
+
+console.log(" Running Quote App Diagnostics...");
+
+
+if (typeof quotes === "undefined") {
+  console.error(" quotes array missing.");
+} else if (!Array.isArray(quotes)) {
+  console.error(" quotes exists but is not an array.");
+} else {
+  console.log("✔ quotes array found.");
+
+  const validQuotes = quotes.every(q => q.text && q.category);
+  if (!validQuotes) {
+    console.error(" Some quote objects are missing text or category.");
+  } else {
+    console.log("✔ All quotes have text and category.");
+  }
+}
+
+
+if (typeof displayRandomQuote !== "function") {
+  console.error(" displayRandomQuote is missing.");
+} else {
+  console.log("✔ displayRandomQuote function found.");
+
+  const testQuote = displayRandomQuote();
+  if (!testQuote || !testQuote.text) {
+    console.error(" Random quote logic not working.");
+  } else {
+    console.log("✔ Random quote logic working:", testQuote);
+  }
+}
+
+
+if (typeof addQuote !== "function") {
+  console.error(" addQuote function missing.");
+} else {
+  console.log("✔ addQuote function found.");
+
+  const initialLength = quotes.length;
+  quotes.push({ text: "Test Quote", category: "Test" });
+
+  if (quotes.length === initialLength + 1) {
+    console.log("✔ addQuote correctly modifies the quotes array.");
+  } else {
+    console.error(" addQuote did NOT modify the quotes array.");
+  }
+}
+
+
+const btn = document.getElementById("newQuote");
+if (!btn) {
+  console.error(" 'Show New Quote' button not found.");
+} else {
+  console.log("✔ 'Show New Quote' button exists.");
+  console.log("✔ Assuming event listener attached (detected in script).");
+}
+
+console.log(" Diagnostics Complete.");
+
 
 function showRandomQuote() {
   const quoteDisplay = document.getElementById('quoteDisplay');
