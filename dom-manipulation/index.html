@@ -79,6 +79,22 @@
 
 <button id="sync-button">Sync Now</button>
 
+<div id="notification" class="hidden"></div>
+
+<p id="quote">Your quote will appear here</p>
+<button id="new-quote-btn">New Quote</button>
+<button id="sync-btn">Sync Now</button>
+
+<style>
+.hidden { display: none; }
+#notification {
+  background: yellow;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+</style>
+
+
 <script>
 
 const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";

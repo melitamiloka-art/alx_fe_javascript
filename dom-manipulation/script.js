@@ -326,153 +326,95 @@ window.onload = function() {
 
 window.addQuote = addQuote;
 
-
 const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 
-
 let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+
+
 
 function saveLocalQuotes() {
   localStorage.setItem("quotes", JSON.stringify(localQuotes));
 }
 
+function showNotification(message) {
+  const div = document.getElementById("notification");
 
-async function fetchQuotesFromServer() {
+  if (!div) return;
+
+  div.textContent = message;
+  div.classList.remove("hidden");
+
+  setTimeout(() => {
+    div.classList.add("hidden");
+  }, 3000);
+}
+
+async function fetchFromServer() {
   try {
-    const response = await fetch(SERVER_URL);
-    return await response.json();
-  } catch (e) {
-    console.error("Server fetch failed:", e);
-    notifyUser("⚠ Unable to sync with server");
+    const res = await fetch(SERVER_URL);
+    const data = await res.json();
+
+    
+    return data.slice(0, 10).map(item => ({
+      id: item.id,
+      text: item.title || item.body,
+      updatedAt: Date.now(),
+    }));
+  } catch (err) {
+    console.error("Error fetching server data:", err);
+    showNotification("⚠ Server unreachable — using local data");
     return [];
   }
 }
 
-async function postQuoteToServer(quote) {
-  try {
-    const response = await fetch(SERVER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(quote),
-    });
-    return await response.json();
-  } catch (e) {
-    console.error("Server post failed:", e);
-    notifyUser("⚠ Failed to upload quote to server");
-  }
-}
-
-
 function resolveConflicts(serverQuotes) {
-  let updatedLocal = [...localQuotes];
+  let merged = [...localQuotes];
 
   serverQuotes.forEach(serverQuote => {
-    const normalizedQuote = {
-      id: serverQuote.id,
-      text: serverQuote.title || serverQuote.body,
-      updatedAt: Date.now(),
-    };
+    const existing = merged.find(q => q.id === serverQuote.id);
 
-    const localMatch = updatedLocal.find(q => q.id === normalizedQuote.id);
-
-    if (!localMatch) {
+    if (!existing) {
       
-      updatedLocal.push(normalizedQuote);
+      merged.push(serverQuote);
     } else {
       
-      updatedLocal = updatedLocal.map(q =>
-        q.id === normalizedQuote.id ? normalizedQuote : q
+      merged = merged.map(q =>
+        q.id === serverQuote.id ? serverQuote : q
       );
+      showNotification("🔄 Conflict detected — server version applied");
     }
   });
 
-  localQuotes = updatedLocal;
+  localQuotes = merged;
   saveLocalQuotes();
-
-  notifyUser(" Quotes synced with server");
 }
 
+async function syncQuotes() {
+  const serverQuotes = await fetchFromServer();
 
-async function syncWithServer() {
-  const serverData = await fetchQuotesFromServer();
-
-  
-  const formattedServerQuotes = serverData.map(q => ({
-    id: q.id,
-    title: q.title,
-    body: q.body,
-  }));
-
-  resolveConflicts(formattedServerQuotes);
-}
-
-
-
-
-function displayRandomQuote() {
-  if (localQuotes.length === 0) {
-    notifyUser("No quotes available");
-    return;
+  if (serverQuotes.length > 0) {
+    resolveConflicts(serverQuotes);
+    showNotification("🔄 Quotes synced with server");
   }
-
-  const random = localQuotes[Math.floor(Math.random() * localQuotes.length)];
-  document.getElementById("quote").textContent = random.text;
-}
-
-document.getElementById("new-quote-btn")?.addEventListener("click", displayRandomQuote);
-
-
-
-
-document.getElementById("add-quote-btn")?.addEventListener("click", async () => {
-  const input = document.getElementById("quote-input").value.trim();
-
-  if (!input) {
-    notifyUser("⚠ Enter a quote first");
-    return;
-  }
-
-  const newQuote = {
-    id: Date.now(),
-    text: input,
-    updatedAt: Date.now(),
-  };
-
- 
-  localQuotes.push(newQuote);
-  saveLocalQuotes();
-
-  
-  await postQuoteToServer(newQuote);
-
-  notifyUser("✨ Quote added & synced");
-});
-
-
-
-
-function notifyUser(message) {
-  const box = document.getElementById("notification");
-  if (!box) return;
-
-  box.textContent = message;
-  box.classList.remove("hidden");
-
-  setTimeout(() => box.classList.add("hidden"), 3500);
 }
 
 
+setInterval(() => {
+  syncQuotes();     
+}, 15000);           
 
 
-document.getElementById("resolve-conflicts")?.addEventListener("click", () => {
-  notifyUser("Manual conflict resolution is not implemented yet.");
-});
+document.getElementById("sync-btn")?.addEventListener("click", syncQuotes);
 
 
+function showRandomQuote() {
+  if (localQuotes.length === 0) return;
+
+  const q = localQuotes[Math.floor(Math.random() * localQuotes.length)];
+  document.getElementById("quote").textContent = q.text;
+}
+
+document.getElementById("new-quote-btn")?.addEventListener("click", showRandomQuote);
 
 
-setInterval(syncWithServer, 15000); 
-
-
-syncWithServer();
-displayRandomQuote();
+showRandomQuote();
