@@ -326,7 +326,6 @@ window.onload = function() {
 
 window.addQuote = addQuote;
 
-
 function getLocalQuotes() {
     return JSON.parse(localStorage.getItem("quotes")) || [];
 }
@@ -335,107 +334,100 @@ function saveLocalQuotes(quotes) {
     localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
-function notifyUser(message) {
+function notify(message) {
     const box = document.getElementById("notification");
-
     if (!box) {
-        console.warn("No #notification element in HTML");
+        console.warn("UI notification element (#notification) missing.");
         return;
     }
 
     box.innerText = message;
     box.style.display = "block";
 
-    setTimeout(() => {
-        box.style.display = "none";
-    }, 4000);
+    setTimeout(() => box.style.display = "none", 3000);
 }
 
+
+async function fetchQuotesFromServer() {
+    try {
+        const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+        const data = await res.json();
+        return data;
+    } catch (err) {
+        notify("Error fetching quotes from server.");
+        console.error(err);
+        return [];
+    }
+}
+
+
+async function postQuoteToServer(quote) {
+    try {
+        const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(quote)
+        });
+
+        return await res.json(); 
+    } catch (err) {
+        notify("Error posting quote to server.");
+        console.error(err);
+        return null;
+    }
+}
 
 function resolveConflict(serverQuote, localQuote) {
-    const userChoice = confirm(
-        "A conflict was detected!\n\n" +
+    const userAcceptsServer = confirm(
+        "Conflict detected!\n\n" +
         "OK = Use server version\n" +
-        "Cancel = Keep your local version"
+        "Cancel = Keep local version"
     );
 
-    return userChoice ? serverQuote : localQuote;
+    return userAcceptsServer ? serverQuote : localQuote;
 }
 
-
-function updateLocalQuotes(serverQuotes) {
+async function syncQuotes() {
+    const serverQuotes = await fetchQuotesFromServer();
     const localQuotes = getLocalQuotes();
 
     const merged = serverQuotes.map(serverQuote => {
-        const localMatch = localQuotes.find(q => q.id === serverQuote.id);
+        const match = localQuotes.find(q => q.id === serverQuote.id);
 
-        if (!localMatch) return serverQuote;
+        if (!match) return serverQuote;
 
-    
         const isDifferent =
-            JSON.stringify(localMatch) !== JSON.stringify(serverQuote);
+            JSON.stringify(match) !== JSON.stringify(serverQuote);
 
         if (isDifferent) {
-            return resolveConflict(serverQuote, localMatch);
+            return resolveConflict(serverQuote, match);
         }
 
         return serverQuote;
     });
 
     saveLocalQuotes(merged);
-    notifyUser("Quotes synced with server.");
+    notify("Quotes synced with server.");
 }
 
-async function fetchServerQuotes() {
-    try {
-        const res = await fetch("https://jsonplaceholder.typicode.com/posts");
-        return await res.json();
-    } catch (err) {
-        console.error("Server fetch failed:", err);
-        notifyUser("Failed to reach server.");
-        return [];
-    }
-}
-
-async function syncWithServer() {
-    const serverQuotes = await fetchServerQuotes();
-    updateLocalQuotes(serverQuotes);
-}
-
-setInterval(syncWithServer, 30000);
+setInterval(syncQuotes, 30000); 
 
 
-async function addNewQuoteToServer(newQuote) {
-    try {
-        const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newQuote)
-        });
-
-        return await res.json(); 
-    } catch (err) {
-        console.error("Error posting quote:", err);
-        notifyUser("Failed to send quote to server.");
-        return null;
-    }
-}
-
-async function addQuote(newQuoteText) {
+async function addQuote(text) {
     const newQuote = {
-        userId: 1,
         title: "User Quote",
-        body: newQuoteText
+        body: text,
+        userId: 1
     };
 
-    const serverCopy = await addNewQuoteToServer(newQuote);
-    if (!serverCopy) return;
+    const serverSaved = await postQuoteToServer(newQuote);
+    if (!serverSaved) return;
 
     const localQuotes = getLocalQuotes();
-    localQuotes.push(serverCopy);
+    localQuotes.push(serverSaved);
 
     saveLocalQuotes(localQuotes);
-    notifyUser("Quote added and synced with server!");
+    notify("New quote added and synced!");
 }
 
-syncWithServer();
+syncQuotes();
