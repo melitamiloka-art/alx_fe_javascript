@@ -311,7 +311,23 @@ function addQuote(text, category) {
     
     localStorage.setItem('quotes', JSON.stringify(quotes));
 
+    function notify(message) {
+    const box = document.getElementById("notification");
+    if (!box) {
+        console.warn("UI notification element (#notification) missing.");
+        return;
+    }
+
+    box.innerText = message;
+    box.style.display = "block";
+
     
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 3000);
+}
+
+
     populateCategories();
     filterQuotes();
 }
