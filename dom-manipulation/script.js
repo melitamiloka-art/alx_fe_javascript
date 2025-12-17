@@ -4,9 +4,7 @@ let quotes = [
   { text: "It's not whether you get knocked down, it's whether you get up.", category: "Perseverance" }
 ];
 
-
 function displayRandomQuote() {
-  
   if (quotes.length === 0) {
     document.getElementById('quoteDisplay').innerText = "No quotes available!";
     return;
@@ -16,9 +14,7 @@ function displayRandomQuote() {
   document.getElementById('quoteDisplay').innerText = `"${quote.text}" - ${quote.category}`;
 }
 
-
 function addQuote() {
-  
   const textInput = document.getElementById('newQuoteText');
   const categoryInput = document.getElementById('newQuoteCategory');
 
@@ -29,12 +25,16 @@ function addQuote() {
     quotes.push({ text: newQuoteText, category: newQuoteCategory });
     textInput.value = "";
     categoryInput.value = "";
-    displayRandomQuote(); 
+    displayRandomQuote();
   } else {
     alert("Please enter both a quote and a category.");
   }
 }
 
-
-document.getElementById('newQuote').addEventListener('click', displayRandomQuote);
-document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('newQuote').addEventListener('click', displayRandomQuote);
+  document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
+  
+ 
+  displayRandomQuote();
+});
