@@ -6,31 +6,39 @@ let quotes = [
 
 
 function showRandomQuote() {
+  if (quotes.length === 0) {
+    document.getElementById("quoteDisplay").textContent = "No quotes available!";
+    return;
+  }
+
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-  const quoteDisplay = document.getElementById("quoteDisplay");
-  quoteDisplay.textContent = `"${quote.text}" — ${quote.category}`;
+
+  document.getElementById("quoteDisplay").textContent = `"${quote.text}" — ${quote.category}`;
 }
 
 
 function addQuote() {
-  const quoteTextInput = document.getElementById("newQuoteText");
-  const quoteCategoryInput = document.getElementById("newQuoteCategory");
-  const newQuote = quoteTextInput.value.trim();
-  const newCategory = quoteCategoryInput.value.trim();
+  const textInput = document.getElementById("newQuoteText");
+  const categoryInput = document.getElementById("newQuoteCategory");
+  const text = textInput.value.trim();
+  const category = categoryInput.value.trim();
 
-  if (newQuote === "" || newCategory === "") {
+  
+  if (!text || !category) {
     alert("Please enter both a quote and a category.");
     return;
   }
 
   
-  quotes.push({ text: newQuote, category: newCategory });
+  quotes.push({ text, category });
 
   
-  quoteTextInput.value = "";
-  quoteCategoryInput.value = "";
+  textInput.value = "";
+  categoryInput.value = "";
 
+  
+  document.getElementById("quoteDisplay").textContent = `"${text}" — ${category}`;
   alert("Quote added successfully!");
 }
 
