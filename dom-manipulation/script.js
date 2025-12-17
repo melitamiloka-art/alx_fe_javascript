@@ -279,3 +279,35 @@ function notifyConflicts(conflicts) {
 
 console.log("Local Storage:", JSON.parse(localStorage.getItem("quotes")));
 console.log("Server Data:", serverQuotes);
+
+const notification = document.createElement("div");
+notification.textContent = "Quotes synced with server!";
+document.body.appendChild(notification);
+
+function syncQuotesWithServer(serverQuotes) {
+  const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+
+  const localMap = new Map(localQuotes.map(q => [q.id, q]));
+  serverQuotes.forEach(serverQuote => localMap.set(serverQuote.id, serverQuote));
+
+  const mergedQuotes = Array.from(localMap.values());
+  localStorage.setItem("quotes", JSON.stringify(mergedQuotes));
+
+  
+  console.log("Quotes synced with server!"); 
+
+  
+  const notification = document.createElement("div");
+  notification.textContent = "Quotes synced with server!";
+  notification.style.position = "fixed";
+  notification.style.bottom = "10px";
+  notification.style.right = "10px";
+  notification.style.background = "#4CAF50";
+  notification.style.color = "#fff";
+  notification.style.padding = "10px";
+  notification.style.borderRadius = "5px";
+  document.body.appendChild(notification);
+  
+
+  setTimeout(() => notification.remove(), 3000);
+}
