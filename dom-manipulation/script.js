@@ -236,6 +236,27 @@ async function fetchAndSyncQuotes() {
   }
 }
 
+async function fetchQuotesFromServer() {
+  const response = await fetch(API_URL);
+  const serverQuotes = await response.json();
+  syncQuotesWithServer(serverQuotes);
+}
+
+async function postQuoteToServer(newQuote) {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newQuote)
+    });
+    const data = await response.json();
+    console.log("Quote posted to server:", data);
+  } catch (error) {
+    console.error("Failed to post quote:", error);
+  }
+}
+
+
 
 setInterval(fetchAndSyncQuotes, 30000);
 
