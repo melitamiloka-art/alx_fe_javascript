@@ -1,9 +1,8 @@
-if (typeof quotes === "undefined") {
-  var quotes = [
-    { text: "Be yourself; everyone else is already taken.", category: "Inspiration" },
-    { text: "Do not take life too seriously. You will never get out of it alive.", category: "Humor" }
-  ];
-}
+let quotes = [
+  { text: "The journey of a thousand miles begins with one step.", category: "Motivation" },
+  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+  { text: "Do not go where the path may lead, go instead where there is no path.", category: "Inspiration" }
+];
 
 
 const quoteDisplay = document.getElementById("quoteDisplay");
