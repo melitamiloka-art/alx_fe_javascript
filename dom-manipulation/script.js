@@ -1,42 +1,36 @@
 const quotes = [
   { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
   { text: "Don't let yesterday take up too much of today.", category: "Inspiration" },
-  { text: "You learn more from failure than from success.", category: "Wisdom" }
+  { text: "You learn more from failure than from success.", category: "Wisdom" },
+  { text: "Dream big and dare to fail.", category: "Motivation" }
 ];
 
 function displayRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-  document.getElementById("quoteDisplay").textContent = `"${quote.text}" — ${quote.category}`;
+  
+  document.getElementById("quoteDisplay").textContent = quote.text;
 }
+
 
 function addQuote() {
   const text = document.getElementById("newQuoteText").value;
   const category = document.getElementById("newQuoteCategory").value;
 
   if (text && category) {
-    quotes.push({ text, category });
+    quotes.push({ text: text, category: category });
     displayRandomQuote(); 
+    
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
-  } else {
-    alert("Please enter both text and category!");
   }
 }
 
- document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
+document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
- 
 
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('newQuote').addEventListener('click', displayRandomQuote);
-  document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
-  
- 
-  displayRandomQuote();
-});
-
+displayRandomQuote();
 
 function loadQuotes() {
   const storedQuotes = localStorage.getItem("quotes");
