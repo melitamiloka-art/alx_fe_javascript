@@ -63,3 +63,32 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Quote Generator with Filters</title>
+</head>
+<body>
+  <h1>Dynamic Quote Generator</h1>
+
+  
+  <label for="categoryFilter">Filter by Category:</label>
+  <select id="categoryFilter" onchange="filterQuotes()">
+    <option value="all">All Categories</option>
+    
+  </select>
+
+  
+  <div id="quoteContainer"></div>
+
+  
+  <h2>Add a New Quote</h2>
+  <input type="text" id="newQuote" placeholder="Enter quote">
+  <input type="text" id="newCategory" placeholder="Enter category">
+  <button onclick="addQuote()">Add Quote</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
