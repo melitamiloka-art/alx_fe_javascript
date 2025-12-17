@@ -109,12 +109,6 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-let quotes = [
-  { text: "The journey of a thousand miles begins with one step.", category: "Motivation" },
-  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-  { text: "Do what you can, with what you have, where you are.", category: "Motivation" },
-  { text: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", category: "Philosophy" }
-];
 
 
 if(localStorage.getItem('quotes')) {
@@ -162,7 +156,7 @@ function displayQuotes(filteredQuotes = quotes) {
 
 function filterQuotes() {
   const selectedCategory = document.getElementById('categoryFilter').value;
-  localStorage.setItem('selectedCategory', selectedCategory); // Save last selection
+  localStorage.setItem('selectedCategory', selectedCategory); 
 
   if(selectedCategory === 'all') {
     displayQuotes();
@@ -199,3 +193,68 @@ function addQuote() {
 
 populateCategories();
 filterQuotes();
+
+const API_URL = "https://jsonplaceholder.typicode.com/posts"; 
+async function fetchQuotes() {
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    
+    localStorage.setItem("quotes", JSON.stringify(data));
+    console.log("Quotes fetched from server:", data);
+  } catch (error) {
+    console.error("Failed to fetch quotes:", error);
+  }
+}
+
+setInterval(fetchQuotes, 30000);
+
+function syncQuotesWithServer(serverQuotes) {
+  const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+
+  
+  const localMap = new Map(localQuotes.map(q => [q.id, q]));
+
+  
+  serverQuotes.forEach(serverQuote => {
+    localMap.set(serverQuote.id, serverQuote); 
+  });
+
+  const mergedQuotes = Array.from(localMap.values());
+  localStorage.setItem("quotes", JSON.stringify(mergedQuotes));
+
+  console.log("Local quotes synced with server:", mergedQuotes);
+}
+
+async function fetchAndSyncQuotes() {
+  try {
+    const response = await fetch(API_URL);
+    const serverQuotes = await response.json();
+    syncQuotesWithServer(serverQuotes);
+  } catch (error) {
+    console.error("Sync failed:", error);
+  }
+}
+
+
+setInterval(fetchAndSyncQuotes, 30000);
+
+function detectConflicts(localQuotes, serverQuotes) {
+  const conflicts = [];
+  localQuotes.forEach(local => {
+    const server = serverQuotes.find(s => s.id === local.id);
+    if (server && server.content !== local.content) {
+      conflicts.push({ local, server });
+    }
+  });
+  return conflicts;
+}
+
+function notifyConflicts(conflicts) {
+  if (conflicts.length === 0) return;
+  alert(`There are ${conflicts.length} conflicts. Server data will overwrite local changes.`);
+}
+
+
+console.log("Local Storage:", JSON.parse(localStorage.getItem("quotes")));
+console.log("Server Data:", serverQuotes);
