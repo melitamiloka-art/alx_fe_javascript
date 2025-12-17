@@ -1,35 +1,33 @@
-let quotes = [
+const quotes = [
   { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
   { text: "Don't let yesterday take up too much of today.", category: "Inspiration" },
-  { text: "It's not whether you get knocked down, it's whether you get up.", category: "Perseverance" }
+  { text: "You learn more from failure than from success.", category: "Wisdom" }
 ];
 
 function displayRandomQuote() {
-  if (quotes.length === 0) {
-    document.getElementById('quoteDisplay').innerText = "No quotes available!";
-    return;
-  }
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-  document.getElementById('quoteDisplay').innerText = `"${quote.text}" - ${quote.category}`;
+  document.getElementById("quoteDisplay").textContent = `"${quote.text}" — ${quote.category}`;
 }
 
 function addQuote() {
-  const textInput = document.getElementById('newQuoteText');
-  const categoryInput = document.getElementById('newQuoteCategory');
+  const text = document.getElementById("newQuoteText").value;
+  const category = document.getElementById("newQuoteCategory").value;
 
-  const newQuoteText = textInput.value.trim();
-  const newQuoteCategory = categoryInput.value.trim();
-
-  if (newQuoteText && newQuoteCategory) {
-    quotes.push({ text: newQuoteText, category: newQuoteCategory });
-    textInput.value = "";
-    categoryInput.value = "";
-    displayRandomQuote();
+  if (text && category) {
+    quotes.push({ text, category });
+    displayRandomQuote(); 
+    document.getElementById("newQuoteText").value = "";
+    document.getElementById("newQuoteCategory").value = "";
   } else {
-    alert("Please enter both a quote and a category.");
+    alert("Please enter both text and category!");
   }
 }
+
+ document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
+document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
+ 
+
 
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('newQuote').addEventListener('click', displayRandomQuote);
