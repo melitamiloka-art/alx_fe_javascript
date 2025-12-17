@@ -9,6 +9,50 @@
     #quoteDisplay { margin: 20px 0; font-size: 1.2em; font-style: italic; }
     input { margin: 5px; padding: 5px; }
     button { padding: 5px 10px; }
+    #notifications { margin-top: 10px; color: green; }
+  </style>
+</head>
+<body>
+  <h1>Dynamic Quote Generator</h1>
+
+ 
+  <div id="quoteDisplay">Click "Show New Quote" to see a quote!</div>
+  <button id="newQuote">Show New Quote</button>
+
+  
+  <div id="addQuoteForm">
+    <h3>Add a New Quote</h3>
+    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <button id="addQuoteBtn">Add Quote</button>
+  </div>
+
+  
+  <div id="categoryFilter">
+    <h3>Filter by Category</h3>
+    <select id="categorySelect">
+      <option value="all">All</option>
+    </select>
+    <button id="filterBtn">Filter</button>
+  </div>
+
+  <div id="notifications"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Quote Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #quoteDisplay { margin: 20px 0; font-size: 1.2em; font-style: italic; }
+    input { margin: 5px; padding: 5px; }
+    button { padding: 5px 10px; }
     .quote-item { margin-bottom: 10px; }
   </style>
 </head>
