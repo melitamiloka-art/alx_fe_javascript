@@ -1,36 +1,53 @@
-let quotes = [
-  { text: "Learning never exhausts the mind.", category: "Education" },
-  { text: "The future belongs to those who prepare for it today.", category: "Motivation" },
-  { text: "Simplicity is the ultimate sophistication.", category: "Wisdom" }
+const quotes = [
+  { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
+  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+  { text: "Do not watch the clock. Do what it does. Keep going.", category: "Inspiration" }
 ];
 
-function displayRandomQuote() {
-  let quoteDisplay = document.getElementById("quoteDisplay");
-  let randomIndex = Math.floor(Math.random() * quotes.length);
-  let quote = quotes[randomIndex];
 
-  quoteDisplay.innerHTML =
-    "<p>" + quote.text + "</p><small>" + quote.category + "</small>";
+function displayRandomQuote() {
+  const quoteDisplay = document.getElementById("quoteDisplay");
+
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  const randomQuote = quotes[randomIndex];
+
+  quoteDisplay.innerHTML = `
+    <p>"${randomQuote.text}"</p>
+    <small>Category: ${randomQuote.category}</small>
+  `;
 }
 
-function addQuote() {
-  let textInput = document.getElementById("newQuoteText");
-  let categoryInput = document.getElementById("newQuoteCategory");
 
-  quotes.push({
-    text: textInput.value,
-    category: categoryInput.value
-  });
-
-  textInput.value = "";
-  categoryInput.value = "";
-
+function showRandomQuote() {
   displayRandomQuote();
 }
 
-document.getElementById("newQuote")
-  .addEventListener("click", displayRandomQuote);
 
+document.getElementById("newQuote").addEventListener("click", showRandomQuote);
+
+
+function addQuote() {
+  const quoteTextInput = document.getElementById("newQuoteText");
+  const quoteCategoryInput = document.getElementById("newQuoteCategory");
+
+  const text = quoteTextInput.value.trim();
+  const category = quoteCategoryInput.value.trim();
+
+  if (text === "" || category === "") {
+    alert("Please enter both quote text and category.");
+    return;
+  }
+
+  
+  quotes.push({ text, category });
+
+  
+  quoteTextInput.value = "";
+  quoteCategoryInput.value = "";
+
+  
+  displayRandomQuote();
+}
 
 
 function loadQuotes() {
