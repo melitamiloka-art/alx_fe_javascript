@@ -5,15 +5,17 @@ let quotes = [
 ];
 
 function displayRandomQuote() {
-  const quoteDisplay = document.getElementById("quoteDisplay");
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  const quote = quotes[randomIndex];
-  quoteDisplay.textContent = `"${quote.text}" — ${quote.category}`;
+  let quoteDisplay = document.getElementById("quoteDisplay");
+  let randomIndex = Math.floor(Math.random() * quotes.length);
+  let quote = quotes[randomIndex];
+
+  quoteDisplay.innerHTML =
+    "<p>" + quote.text + "</p><small>" + quote.category + "</small>";
 }
 
 function addQuote() {
-  const textInput = document.getElementById("newQuoteText");
-  const categoryInput = document.getElementById("newQuoteCategory");
+  let textInput = document.getElementById("newQuoteText");
+  let categoryInput = document.getElementById("newQuoteCategory");
 
   quotes.push({
     text: textInput.value,
@@ -22,16 +24,13 @@ function addQuote() {
 
   textInput.value = "";
   categoryInput.value = "";
+
   displayRandomQuote();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("newQuote")
-    .addEventListener("click", displayRandomQuote);
+document.getElementById("newQuote")
+  .addEventListener("click", displayRandomQuote);
 
-  document.getElementById("addQuoteBtn")
-    .addEventListener("click", addQuote);
-});
 
 
 function loadQuotes() {
