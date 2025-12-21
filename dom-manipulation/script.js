@@ -1,46 +1,37 @@
-const quotes = [
+let quotes = [
   { text: "Learning never exhausts the mind.", category: "Education" },
   { text: "The future belongs to those who prepare for it today.", category: "Motivation" },
   { text: "Simplicity is the ultimate sophistication.", category: "Wisdom" }
 ];
 
-
 function displayRandomQuote() {
   const quoteDisplay = document.getElementById("quoteDisplay");
-
-  
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-
-  
-  quoteDisplay.innerHTML = `
-    <p>${quote.text}</p>
-    <small>${quote.category}</small>
-  `;
+  quoteDisplay.textContent = `"${quote.text}" — ${quote.category}`;
 }
 
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
   const categoryInput = document.getElementById("newQuoteCategory");
 
-  const newQuote = {
+  quotes.push({
     text: textInput.value,
     category: categoryInput.value
-  };
+  });
 
- 
-  quotes.push(newQuote);
-
-  
   textInput.value = "";
   categoryInput.value = "";
-
- 
   displayRandomQuote();
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("newQuote")
+    .addEventListener("click", displayRandomQuote);
 
-document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
+  document.getElementById("addQuoteBtn")
+    .addEventListener("click", addQuote);
+});
 
 
 function loadQuotes() {
